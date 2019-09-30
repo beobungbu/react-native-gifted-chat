@@ -36,6 +36,8 @@ export interface SendProps {
   children?: React.ReactNode
   alwaysShowSend?: boolean
   disabled?: boolean
+  isRecordMode?():boolean
+  onLongPressSend?():void
   onSend?({ text }: { text: string }, b: boolean): void
 }
 
@@ -43,6 +45,8 @@ export default class Send extends Component<SendProps> {
   static defaultProps = {
     text: '',
     onSend: () => {},
+    onLongPressSend: () => {},
+    isRecordMode:() => false,
     label: 'Send',
     containerStyle: {},
     textStyle: {},
@@ -60,13 +64,38 @@ export default class Send extends Component<SendProps> {
     children: PropTypes.element,
     alwaysShowSend: PropTypes.bool,
     disabled: PropTypes.bool,
+    isRecordMode: PropTypes.func,
+    onLongPressSend: PropTypes.func
+
+  }
+
+  constructor(props: Readonly<SendProps>) {
+    super(props);
+    this.onPressSend = this.onPressSend.bind(this);
+    this.onLongPress = this.onLongPress.bind(this);
+  }
+
+  onPressSend() {
+    const {text, onSend, isRecordMode} = this.props;
+    if (text && onSend) {
+      onSend({ text: text.trim() }, true)
+    } else if(isRecordMode && isRecordMode()) {
+
+    }
+  }
+
+  onLongPress(){
+    const {onLongPressSend} = this.props;
+    if(onLongPressSend) {
+      onLongPressSend();
+    }
+
   }
 
   render() {
     const {
       text,
       containerStyle,
-      onSend,
       children,
       textStyle,
       label,
@@ -80,11 +109,8 @@ export default class Send extends Component<SendProps> {
           accessible
           accessibilityLabel='send'
           style={[styles.container, containerStyle]}
-          onPress={() => {
-            if (text && onSend) {
-              onSend({ text: text.trim() }, true)
-            }
-          }}
+          onPress={this.onPressSend}
+          onLongPress={this.onLongPress}
           accessibilityTraits='button'
           disabled={disabled}
         >
