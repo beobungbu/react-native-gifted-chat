@@ -37,7 +37,7 @@ export interface SendProps {
   alwaysShowSend?: boolean
   disabled?: boolean
   isRecordMode?():boolean
-  onLongPressSend?():void
+  onLongPressOnSend?():void
   onSend?({ text }: { text: string }, b: boolean): void
 }
 
@@ -45,7 +45,7 @@ export default class Send extends Component<SendProps> {
   static defaultProps = {
     text: '',
     onSend: () => {},
-    onLongPressSend: () => {},
+    onLongPressOnSend: () => {},
     isRecordMode:() => false,
     label: 'Send',
     containerStyle: {},
@@ -65,7 +65,7 @@ export default class Send extends Component<SendProps> {
     alwaysShowSend: PropTypes.bool,
     disabled: PropTypes.bool,
     isRecordMode: PropTypes.func,
-    onLongPressSend: PropTypes.func
+    onLongPressOnSend: PropTypes.func
 
   }
 
@@ -85,9 +85,9 @@ export default class Send extends Component<SendProps> {
   }
 
   onLongPress(){
-    const {onLongPressSend} = this.props;
-    if(onLongPressSend) {
-      onLongPressSend();
+    const {onLongPressOnSend} = this.props;
+    if(onLongPressOnSend) {
+      onLongPressOnSend();
     }
 
   }

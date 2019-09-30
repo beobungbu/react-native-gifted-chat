@@ -123,6 +123,10 @@ export interface GiftedChatProps<TMessage extends IMessage = IMessage> {
   messageIdGenerator?(message?: TMessage): string
   /* Callback when sending a message */
   onSend?(messages: TMessage[]): void
+  /* Callback when longpress on send button*/
+  onLongPressOnSend?(): void
+  /* ask for Record mode ? */
+  isRecordMode?(): boolean
   /*Callback when loading earlier messages*/
   onLoadEarlier?(): void
   /*  Render a loading view when initializing */
@@ -204,6 +208,8 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     messageIdGenerator: () => uuid.v4(),
     user: {},
     onSend: () => {},
+    onLongPressOnSend:() => {},
+    isRecordMode: () => false,
     locale: null,
     timeFormat: TIME_FORMAT,
     dateFormat: DATE_FORMAT,
@@ -270,6 +276,8 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     messageIdGenerator: PropTypes.func,
     user: PropTypes.object,
     onSend: PropTypes.func,
+    onLongPressOnSend: PropTypes.func,
+    isRecordMode: PropTypes.func,
     locale: PropTypes.string,
     timeFormat: PropTypes.string,
     dateFormat: PropTypes.string,
@@ -673,6 +681,19 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     }
   }
 
+  onLongPressOnSend = () => {
+    if(this.props.onLongPressOnSend) {
+      this.props.onLongPressOnSend();
+    }
+  }
+
+  isRecordMode = () => {
+    if(this.props.isRecordMode) {
+      return this.props.isRecordMode();
+    }
+    return false;
+  }
+
   resetInputToolbar() {
     if (this.textInput) {
       this.textInput.clear()
@@ -782,6 +803,8 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
         this.state.composerHeight!,
       ),
       onSend: this.onSend,
+      onLongPressOnSend: this.onLongPressOnSend,
+      isRecordMode: this.isRecordMode,
       onInputSizeChanged: this.onInputSizeChanged,
       onTextChanged: this.onInputTextChanged,
       textInputProps: {
