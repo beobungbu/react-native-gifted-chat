@@ -81,6 +81,10 @@ export interface GiftedChatProps<TMessage extends IMessage = IMessage> {
   /* Render the message avatar at the top of consecutive messages, rather than the bottom; default is false */
   renderAvatarOnTop?: boolean
   inverted?: boolean
+  /* Show Input Bar Over the messenger View */
+  isShowInputBarOverMessageView?: boolean
+  messagePaddingBottom?: number
+  inputToolBarPaddingBottom?: number
   /* Extra props to be passed to the <Image> component created by the default renderMessageImage */
   imageProps?: Message['props']
   /*Extra props to be passed to the MessageImage's Lightbox */
@@ -263,6 +267,9 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     maxInputLength: null,
     forceGetKeyboardHeight: false,
     inverted: true,
+    isShowInputBarOverMessageView: false,
+    messagePaddingBottom: 0,
+    inputToolBarPaddingBottom: 0,
     extraData: null,
     minComposerHeight: MIN_COMPOSER_HEIGHT,
     maxComposerHeight: MAX_COMPOSER_HEIGHT,
@@ -322,6 +329,9 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     maxInputLength: PropTypes.number,
     forceGetKeyboardHeight: PropTypes.bool,
     inverted: PropTypes.bool,
+    isShowInputBarOverMessageView: PropTypes.bool,
+    messagePaddingBottom: PropTypes.number,
+    inputToolBarPaddingBottom: PropTypes.number,
     textInputProps: PropTypes.object,
     extraData: PropTypes.object,
     minComposerHeight: PropTypes.number,
@@ -534,7 +544,7 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
   /**
    * Returns the height, based on current window size, without taking the keyboard into account.
    */
-  getBasicMessagesContainerHeight(composerHeight = this.state.composerHeight) {
+  getBasicMessagesContainerHeight(composerHeight = this.props.isShowInputBarOverMessageView?0:this.state.composerHeight) {
     return (
       this.getMaxHeight()! - this.calculateInputToolbarHeight(composerHeight!)
     )
@@ -544,7 +554,7 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
    * Returns the height, based on current window size, taking the keyboard into account.
    */
   getMessagesContainerHeightWithKeyboard(
-    composerHeight = this.state.composerHeight,
+    composerHeight = this.props.isShowInputBarOverMessageView?0:this.state.composerHeight,
   ) {
     return (
       this.getBasicMessagesContainerHeight(composerHeight) -
@@ -632,7 +642,15 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
   }
 
   renderMessages() {
-    const AnimatedView = this.props.isAnimated === true ? Animated.View : View
+
+    const { inverted, isAnimated, isShowInputBarOverMessageView, messagePaddingBottom, inputToolBarPaddingBottom } = this.props;
+    const { composerHeight } = this.state;
+    const AnimatedView = isAnimated ? Animated.View : View
+    const paddingComposerHeight = isShowInputBarOverMessageView?
+      (composerHeight! + messagePaddingBottom! + inputToolBarPaddingBottom!)
+      :
+      messagePaddingBottom!;
+    const listViewProps = {contentContainerStyle:inverted?{paddingTop:paddingComposerHeight}:{paddingBottom:paddingComposerHeight}};
 
     return (
       <AnimatedView
@@ -645,6 +663,7 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
           invertibleScrollViewProps={this.invertibleScrollViewProps}
           messages={this.getMessages()}
           forwardRef={this._messageContainerRef}
+          listViewProps={listViewProps}
         />
         {this.renderChatFooter()}
       </AnimatedView>
@@ -701,7 +720,7 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     this.notifyInputTextReset()
     const newComposerHeight = this.props.minComposerHeight
     const newMessagesContainerHeight = this.getMessagesContainerHeightWithKeyboard(
-      newComposerHeight,
+      this.props.isShowInputBarOverMessageView?0:newComposerHeight,
     )
     this.setState({
       text: this.getTextFromProp(''),
@@ -724,7 +743,7 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
       Math.min(this.props.maxComposerHeight!, size.height),
     )
     const newMessagesContainerHeight = this.getMessagesContainerHeightWithKeyboard(
-      newComposerHeight,
+      this.props.isShowInputBarOverMessageView?0:newComposerHeight,
     )
     this.setState({
       composerHeight: newComposerHeight,
@@ -762,7 +781,7 @@ class GiftedChat<TMessage extends IMessage = IMessage> extends React.Component<
     this.setMaxHeight(layout.height)
     const newComposerHeight = this.props.minComposerHeight
     const newMessagesContainerHeight = this.getMessagesContainerHeightWithKeyboard(
-      newComposerHeight,
+      this.props.isShowInputBarOverMessageView?0:newComposerHeight,
     )
     const initialText = this.props.initialText || ''
     this.setState({

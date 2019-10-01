@@ -39,6 +39,7 @@ export interface InputToolbarProps {
   containerStyle?: StyleProp<ViewStyle>
   primaryStyle?: StyleProp<ViewStyle>
   accessoryStyle?: StyleProp<ViewStyle>
+  inputToolBarPaddingBottom?: number
   renderAccessory?(props: InputToolbarProps): React.ReactNode
   renderActions?(props: Actions['props']): React.ReactNode
   renderSend?(props: Send['props']): React.ReactNode
@@ -59,6 +60,7 @@ export default class InputToolbar extends React.Component<
     primaryStyle: {},
     accessoryStyle: {},
     onPressActionButton: () => {},
+    inputToolBarPaddingBottom: 0,
   }
 
   static propTypes = {
@@ -70,6 +72,7 @@ export default class InputToolbar extends React.Component<
     containerStyle: ViewPropTypes.style,
     primaryStyle: ViewPropTypes.style,
     accessoryStyle: ViewPropTypes.style,
+    inputToolBarPaddingBottom: PropTypes.number,
   }
 
   state = {
@@ -152,6 +155,7 @@ export default class InputToolbar extends React.Component<
   }
 
   render() {
+    const bottomVal = this.props.hasOwnProperty('inputToolBarPaddingBottom')? this.props.inputToolBarPaddingBottom: 0;
     return (
       <View
         style={
@@ -159,6 +163,7 @@ export default class InputToolbar extends React.Component<
             styles.container,
             this.props.containerStyle,
             { position: this.state.position },
+            {left:0, bottom:bottomVal, right: 0}
           ] as ViewStyle
         }
       >
